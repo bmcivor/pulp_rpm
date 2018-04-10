@@ -24,6 +24,7 @@ class RepomdXMLFileContext(MetadataFileContext):
         super(RepomdXMLFileContext, self).__init__(metadata_file_path, checksum_type)
         self.gpg_sign = gpg_sign
         self.sign_options = sign_options
+        self.file_locations = []
 
     def __exit__(self, exc_type, exc_val, exc_tb):
 
@@ -83,8 +84,10 @@ class RepomdXMLFileContext(MetadataFileContext):
         data_attributes = {'type': data_type}
         data_element = ElementTree.Element('data', data_attributes)
 
-        location_attributes = {'href': os.path.join(REPO_DATA_DIR_NAME, file_name)}
+        location = os.path.join(REPO_DATA_DIR_NAME, file_name)
+        location_attributes = {'href': location}
         ElementTree.SubElement(data_element, 'location', location_attributes)
+        self.file_locations.append(location)
 
         timestamp_element = ElementTree.SubElement(data_element, 'timestamp')
         # Convert the float mtime to an integer before stringifying since

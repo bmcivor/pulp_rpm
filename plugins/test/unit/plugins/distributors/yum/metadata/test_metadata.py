@@ -496,3 +496,21 @@ class YumDistributorMetadataTests(unittest.TestCase):
         _signer.assert_called_once_with(options=sign_options)
         _signer.return_value.sign.assert_called_once_with(
             os.path.join(self.metadata_file_dir, "repodata", "repomd.xml"))
+
+    @mock.patch('os.path.getmtime')
+    def test_repomd_metadata_adds_file_locations(self, mock_getmtime):
+        mock_getmtime.return_value = 45.5
+        file_list_path = tempfile.NamedTemporaryFile()
+        update_path = tempfile.NamedTemporaryFile()
+
+        expected_locations = []
+        expected_locations.append(file_list_path)
+        expected_locations.append(update_path)
+
+        context = RepomdXMLFileContext(path)
+        context.metadata_file_handle = mock.Mock()
+        context.add_metadata_file_metadata('file_list', file_list_path)
+        context.add_metadata_file_metadata('update', update_path)
+
+        self.assertEqual(len(context.file_locations), 2)
+        self.assertEqual(expected_locations, context.file_locations)
